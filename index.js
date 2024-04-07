@@ -1,87 +1,92 @@
 const quizScreen = document.getElementById("screen");
+const previousAns = document.getElementById("prevAns");
 
-let data = [];
+let quizData = [];
 let question = 0,
   score = 0,
-  choice = 4;
-let capitalCity, cities, flag, country, check, previousAns;
+  limit = 4;
+let capitalCity, cities, flag, country, check;
 
-fetch("https://restcountries.com/v3.1/all?fields=name,capital,flag")
-  .then((response) => {
-    if (response.ok) {
-      return response.json();
+async function fetchCountries() {
+  try {
+    const response = await fetch(
+      "https://restcountries.com/v3.1/all?fields=name,capital,flag"
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
-    throw Error(response.statusText);
-  })
-  .then((result) => {
-    data = result;
-  })
-  .catch((error) => {
+    return await response.json();
+  } catch (error) {
     console.log(error);
-  });
+  }
+}
+
+fetchCountries().then((result) => {
+  if (result) {
+    quizData = result;
+  }
+});
 
 function clearScreen() {
-  quizScreen.textContent = "";
+  quizScreen.innerHTML = "";
 }
 
 function capitalCities() {
   clearScreen();
   question += 1;
 
-  capitalCity = Math.floor(Math.random() * data.length);
+  capitalCity = Math.floor(Math.random() * quizData.length);
 
-  if (data.length === 0 || data[capitalCity].capital === "") {
-    cities = [undefined];
-    check = undefined;
+  if (quizData.length === 0 || quizData[capitalCity].capital === "") {
+    cities = ["N/A"];
+    check = "N/A";
   } else {
-    cities = [data[capitalCity].capital];
-    check = data[capitalCity].capital;
+    cities = [quizData[capitalCity].capital];
+    check = quizData[capitalCity].capital;
   }
 
-  while (cities.length < choice) {
-    let options = data[Math.floor(Math.random() * data.length)].capital;
+  while (cities.length < limit) {
+    let options = quizData[Math.floor(Math.random() * quizData.length)].capital;
 
-    if (!cities.includes(options) || !cities.includes(undefined)) {
-      if (options === "") {
-        cities.push(undefined);
+    if (!cities.includes(options) || !cities.includes("N/A")) {
+      if (options == "") {
+        cities.push("N/A");
       } else {
         cities.push(options);
       }
     }
   }
 
-  const answerBtn = document.getElementById("answers");
-  answerBtn.textContent = "";
-
-  quizScreen.textContent += `
+  quizScreen.innerHTML += `
     <h2>Question ${question}</h2>
-    <h2>What is the capital city of ${data[capitalCity].name}?</h2><br />
-    <button type="submit" id="answers"></button>
+    <h2>What is the capital city of ${quizData[capitalCity].name.common}?</h2><br />
+    <div id="answers"></div>
   `;
 
-  cities.map((city) => {
-    const cityBtn = document.createElement("button");
-    cityBtn.textContent = city;
-    cityBtn.onclick = isCapitalCorrect.bind(null, city);
-    answerBtn.appendChild(cityBtn);
+  cities.forEach((city) => {
+    document.getElementById("answers").innerHTML += `
+      <button onclick="isCapitalCorrect(\`${city}\`)">${city}</button>`;
   });
 }
 
 function isCapitalCorrect(ans) {
   clearScreen();
 
-  if (ans === check) {
+  if (ans == check) {
     score += 1;
+    previousAns.innerHTML = `
+      Correct!<br />
+      The capital city of ${quizData[capitalCity].name.common} is ${check}<br />
+      Score: ${score}<br />
+    `;
     capitalCities();
   } else {
-    previousAns.textContent += `
-      Wrong answer :(\n
-      The capital city of ${data[capitalCity].name} is ${check} 
+    previousAns.innerHTML = `
+      Wrong answer :( <br />
+      The capital city of ${quizData[capitalCity].name.common} is ${check} <br />
+      Score: ${score} <br />
     `;
+    capitalCities();
   }
-}
-
-function countries() {
-  clearScreen();
-  question += 1;
 }
