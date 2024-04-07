@@ -8,5 +8,12 @@ body {
 
 .title {
     font-family: "Galada", sans-serif;
-    font-size: 40px;
+    font-size: 35px;
+}
+
+@media (max-width: 576px) {
+    .title {
+        font-family: "Galada", sans-serif;
+        font-size: 30px;
+    }
 }
