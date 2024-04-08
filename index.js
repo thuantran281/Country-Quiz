@@ -39,8 +39,8 @@ function capitalCities() {
   capitalCity = Math.floor(Math.random() * quizData.length);
 
   if (quizData.length === 0 || quizData[capitalCity].capital === "") {
-    cities = ["N/A"];
-    check = "N/A";
+    cities = ["undefined"];
+    check = "undefined";
   } else {
     cities = [quizData[capitalCity].capital];
     check = quizData[capitalCity].capital;
@@ -49,9 +49,9 @@ function capitalCities() {
   while (cities.length < limit) {
     let options = quizData[Math.floor(Math.random() * quizData.length)].capital;
 
-    if (!cities.includes(options) || !cities.includes("N/A")) {
+    if (!cities.includes(options) || !cities.includes("undefined")) {
       if (options == "") {
-        cities.push("N/A");
+        cities.push("undefined");
       } else {
         cities.push(options);
       }
@@ -89,4 +89,16 @@ function isCapitalCorrect(ans) {
     `;
     capitalCities();
   }
+}
+
+function countryFlag() {
+  clearScreen();
+  question += 1;
+
+  flag = Math.floor(Math.random() * quizData.length);
+
+  if (quizData.length === 0 || quizData[flag].flag === "") {
+    flag = ["undefined"];
+    check = "undefined";
+  } 
 }
