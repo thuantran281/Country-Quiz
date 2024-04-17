@@ -5,12 +5,12 @@ let quizData = [];
 let question = 0,
   score = 0,
   limit = 4;
-let capitalCity, cities, flag, country, check;
+let capitalCity, cities, flags, countries, check;
 
 async function fetchCountries() {
   try {
     const response = await fetch(
-      "https://restcountries.com/v3.1/all?fields=name,capital,flag"
+      "https://restcountries.com/v3.1/all?fields=name,capital,flags"
     );
 
     if (!response.ok) {
@@ -64,7 +64,7 @@ function capitalCities() {
     <div id="answers"></div>
   `;
 
-  cities.forEach((city) => {
+  cities.map((city) => {
     document.getElementById("answers").innerHTML += `
       <button onclick="isCapitalCorrect(\`${city}\`)">${city}</button>`;
   });
@@ -91,14 +91,56 @@ function isCapitalCorrect(ans) {
   }
 }
 
-function countryFlag() {
+function countryFlags() {
   clearScreen();
   question += 1;
 
-  flag = Math.floor(Math.random() * quizData.length);
+  flags = Math.floor(Math.random() * quizData.length);
+  countries = [quizData[flags].name.common];
+  check = quizData[flags].name.common;
 
-  if (quizData.length === 0 || quizData[flag].flag === "") {
-    flag = ["undefined"];
-    check = "undefined";
-  } 
+  while (countries.length < limit) {
+    let options =
+      quizData[Math.floor(Math.random() * quizData.length)].name.common;
+
+    if (!countries.includes(options)) {
+      countries.push(options);
+    }
+  }
+
+  quizScreen.innerHTML += `
+      Question ${question} <br />
+      What is the flag of the following country? <br /> <br />
+      <img src="${quizData[flags].flags.png}" alt="flag"> <br /> <br />
+      <div id="answers"></div>
+    `;
+
+  countries.map((country) => {
+    document.getElementById("answers").innerHTML += `
+        <button onclick="isFlagCorrect(\`${country}\`)">${country}</button>
+      `;
+  });
+}
+
+function isFlagCorrect(ans) {
+  clearScreen();
+
+  if (ans == check) {
+    score += 1;
+    previousAns.innerHTML = `
+      Correct! 
+      This is the flag of ${quizData[flags].name.common} <br />
+      <img src="${quizData[flags].flags.png}" /> <br />
+      Score: ${score}<br />
+    `;
+    countryFlags();
+  } else {
+    previousAns.innerHTML = `
+      Wrong answer :(
+      This is the flag of ${quizData[flags].name.common} <br />
+      <img src="${quizData[flags].flags.png}" /> <br />
+      Score: ${score}<br />
+    `;
+    countryFlags();
+  }
 }
